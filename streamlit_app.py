@@ -154,9 +154,11 @@ def create_category_table(categorized_words):
         "Words": []
     }
 
-    for category, words in categorized_words.items():
-        data["Category"].append(category)
-        data["Words"].append(", ".join(sorted(set(words))))  # Deduplicate and sort words
+    # Ensure categories appear in the same order as in CRISIS_CATEGORIES
+    for category in list(CRISIS_CATEGORIES.keys()) + ["Miscellaneous"]:
+        if category in categorized_words:
+            data["Category"].append(category)
+            data["Words"].append(", ".join(sorted(set(categorized_words[category]))))  # Deduplicate and sort words
 
     return pd.DataFrame(data)
 
@@ -173,4 +175,5 @@ def display_miscellaneous_warning(miscellaneous_words):
 
 if __name__ == "__main__":
     main()
+
 
