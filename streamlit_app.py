@@ -1,5 +1,5 @@
 import streamlit as st
-from collections import defaultdict
+from collections import defaultdict, Counter
 import pandas as pd
 import re
 import nltk
@@ -98,6 +98,10 @@ def main():
             st.subheader("Categorized Words")
             st.dataframe(category_table)
 
+            # Display a warning with the top 100 words in Miscellaneous
+            if "Miscellaneous" in categorized_words:
+                display_miscellaneous_warning(categorized_words["Miscellaneous"])
+
             # Provide a download button
             st.download_button(
                 label="Download Results as CSV",
@@ -156,5 +160,17 @@ def create_category_table(categorized_words):
 
     return pd.DataFrame(data)
 
+def display_miscellaneous_warning(miscellaneous_words):
+    """Display a warning with the 100 most popular words in Miscellaneous."""
+    word_counts = Counter(miscellaneous_words)
+    top_100_words = word_counts.most_common(100)
+
+    if top_100_words:
+        st.warning(
+            f"The following are the 100 most common words in the 'Miscellaneous' category:\n"
+            + ", ".join([f"{word} ({count})" for word, count in top_100_words])
+        )
+
 if __name__ == "__main__":
     main()
+
