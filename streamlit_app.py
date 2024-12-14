@@ -4,6 +4,7 @@ import pandas as pd
 import re
 import nltk
 from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 
 # Download the stop words
 nltk.download('stopwords')
@@ -57,6 +58,15 @@ CRISIS_CATEGORIES = {
 
 # Load stop words from nltk
 STOP_WORDS = set(stopwords.words('english'))
+
+# Initialize PorterStemmer
+stemmer = PorterStemmer()
+
+# Preprocess crisis categories to store stemmed keywords
+STEMMED_CRISIS_CATEGORIES = {
+    category: [stemmer.stem(word.lower()) for word in keywords]
+    for category, keywords in CRISIS_CATEGORIES.items()
+}
 
 def main():
     st.title("Crisis-Themed Word Categorization")
@@ -118,10 +128,13 @@ def categorize_by_crisis_theme(words):
     """Categorize words into predefined crisis themes."""
     categories = defaultdict(list)
 
-    for word in words:
+    # Stem each word in the input
+    stemmed_words = [stemmer.stem(word) for word in words]
+
+    for word, stemmed_word in zip(words, stemmed_words):
         categorized = False
-        for category, keywords in CRISIS_CATEGORIES.items():
-            if word.lower() in [kw.lower() for kw in keywords]:  # Case-insensitive matching
+        for category, stemmed_keywords in STEMMED_CRISIS_CATEGORIES.items():
+            if stemmed_word in stemmed_keywords:  # Match with stemmed keywords
                 categories[category].append(word)
                 categorized = True
                 break
