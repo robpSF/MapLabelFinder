@@ -1,5 +1,5 @@
 import streamlit as st
-from collections import defaultdict, Counter
+from collections import defaultdict
 import pandas as pd
 import re
 import nltk
@@ -134,18 +134,14 @@ def create_category_table(categorized_words):
     """Create a DataFrame from categorized words."""
     data = {
         "Category": [],
-        "Words": [],
-        "Count": []
+        "Words": []
     }
 
     for category, words in categorized_words.items():
-        word_counts = Counter(words)
-        for word, count in word_counts.items():
-            data["Category"].append(category)
-            data["Words"].append(word)
-            data["Count"].append(count)
+        data["Category"].append(category)
+        data["Words"].append(", ".join(sorted(set(words))))  # Deduplicate and sort words
 
-    return pd.DataFrame(data).sort_values(by=["Category", "Count"], ascending=[True, False])
+    return pd.DataFrame(data)
 
 if __name__ == "__main__":
     main()
