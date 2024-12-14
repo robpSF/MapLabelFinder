@@ -2,6 +2,11 @@ import streamlit as st
 from collections import defaultdict, Counter
 import pandas as pd
 import re
+import nltk
+from nltk.corpus import stopwords
+
+# Download the stop words
+nltk.download('stopwords')
 
 # Crisis categories and associated keywords
 CRISIS_CATEGORIES = {
@@ -50,6 +55,8 @@ CRISIS_CATEGORIES = {
     "Law": ["Law", "legal", "legislature", "courtroom", "court decision", "ruling", "doctrine", "decision"]
 }
 
+# Load stop words from nltk
+STOP_WORDS = set(stopwords.words('english'))
 
 def main():
     st.title("Crisis-Themed Word Categorization")
@@ -68,6 +75,7 @@ def main():
 
             # Preprocess the text and categorize words
             words = preprocess_text(text_blob)
+            words = remove_stop_words(words)
             categorized_words = categorize_by_crisis_theme(words)
 
             # Remove empty categories
@@ -78,7 +86,15 @@ def main():
 
             # Display the categorized words
             st.subheader("Categorized Words")
-            st.write(category_table)
+            st.dataframe(category_table)
+
+            # Provide a download button
+            st.download_button(
+                label="Download Results as CSV",
+                data=category_table.to_csv(index=False),
+                file_name="categorized_words.csv",
+                mime="text/csv",
+            )
 
         else:
             st.error("Please enter some messages to analyze.")
@@ -93,6 +109,10 @@ def preprocess_text(text):
     words = cleaned_text.lower().split()
 
     return words
+
+def remove_stop_words(words):
+    """Remove stop words from the list of words."""
+    return [word for word in words if word not in STOP_WORDS]
 
 def categorize_by_crisis_theme(words):
     """Categorize words into predefined crisis themes."""
